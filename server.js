@@ -9,7 +9,12 @@ const server = http.createServer(app);
 const io = socketio(server);
 // function to format messages
 const formartMessages = require("./utils/messages");
-const { userJoin, getCurrentUser } = require("./utils/users");
+const {
+  userJoin,
+  getCurrentUser,
+  userLeave,
+  getRoomUsers,
+} = require("./utils/users");
 
 // set static folder
 app.use(express.static(path.join(__dirname, "public")));
@@ -26,7 +31,10 @@ io.on("connection", (socket) => {
     // welcome he current user
     socket.emit(
       "message",
-      formartMessages(botName, `Hey ${user.username}, Welcome to cHaTcOrd ${user.room} room`)
+      formartMessages(
+        botName,
+        `Hey ${user.username}, Welcome to cHaTcOrd ${user.room} room`
+      )
     );
     //   Broadcast when a user connects sends to all users except self
     socket.broadcast
@@ -42,13 +50,22 @@ io.on("connection", (socket) => {
     console.log(msg);
     const currUser = getCurrentUser(socket.id);
 
-    io.to(currUser.room).emit("message", formartMessages(currUser.username, msg));
+    io.to(currUser.room).emit(
+      "message",
+      formartMessages(currUser.username, msg)
+    );
   });
 
+  // When user leaves the chat/closes connection
   socket.on("disconnect", () => {
-    const currUser = getCurrentUser(socket.id);
+    const user = userLeave(socket.id);
 
-    io.to(currUser.room).emit("message", formartMessages(botName, `${currUser.username} has left the chat`));
+    if (user) {
+      io.to(user.room).emit(
+        "message",
+        formartMessages(botName, `${user.username} has left the chat`)
+      );
+    }
   });
 
   //   broadcasts to all users including self

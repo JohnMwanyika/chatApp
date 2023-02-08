@@ -22,7 +22,7 @@ socket.on("message", (msg) => {
 });
 
 // leave room
-socket.emit('leaveRoom','user left')
+socket.emit('leaveRoom',{username,room})
 // Message submit
 chatForm.addEventListener("submit", (e) => {
   e.preventDefault();
