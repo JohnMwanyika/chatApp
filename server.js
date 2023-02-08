@@ -43,6 +43,11 @@ io.on("connection", (socket) => {
         "message",
         formartMessages(botName, `${user.username} has joined the chat`)
       );
+    // send users and room info
+    io.to(user.room).emit("roomUsers", {
+      room: user.room,
+      users: getRoomUsers(user.room),
+    });
   });
 
   // listen for chat msg
@@ -65,6 +70,12 @@ io.on("connection", (socket) => {
         "message",
         formartMessages(botName, `${user.username} has left the chat`)
       );
+
+      // send users and room info
+      io.to(user.room).emit("roomUsers", {
+        room: user.room,
+        users: getRoomUsers(user.room),
+      });
     }
   });
 

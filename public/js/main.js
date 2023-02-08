@@ -1,5 +1,7 @@
 const chatForm = document.getElementById("chat-form");
 const chatMessages = document.querySelector(".chat-messages");
+const roomName = document.getElementById("room-name");
+const userList = document.getElementById("users");
 
 // Get user query and room
 const { username, room } = Qs.parse(location.search, {
@@ -22,7 +24,7 @@ socket.on("message", (msg) => {
 });
 
 // leave room
-socket.emit('leaveRoom',{username,room})
+socket.emit("leaveRoom", { username, room });
 // Message submit
 chatForm.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -36,6 +38,13 @@ chatForm.addEventListener("submit", (e) => {
   e.target.elements.msg.focus();
 });
 
+// Get room and users
+socket.on("roomUsers", ({ room, users }) => {
+  outputRoomName(room);
+  outputUsers(users);
+});
+
+// function to output users
 function outputMessage(msg) {
   const div = document.createElement("div");
   div.classList.add("message");
@@ -44,4 +53,15 @@ function outputMessage(msg) {
        ${msg.text}
     </p>`;
   document.querySelector(".chat-messages").appendChild(div);
+}
+
+// function to output room name
+function outputRoomName(room) {
+  roomName.innerText = room;
+}
+// function to output room users
+function outputUsers(users) {
+  userList.innerHTML = `
+  ${users.map((user) => `<li>${user.username}</li>`).join()}
+  `;
 }
